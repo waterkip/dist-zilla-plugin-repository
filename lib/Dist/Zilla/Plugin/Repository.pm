@@ -181,10 +181,10 @@ sub _find_repo {
         if ($self->has_repository) {
             %repo = $self->_git_to_repo($self->repository);
         }
-        elsif ($execute->('git remote show -n ' . $self->git_remote)
-            =~ /URL: (.*)$/m)
+        elsif (my $url = $execute->('git config get remote.' .
+            $self->git_remote . '.url'))
         {
-            %repo = $self->_git_to_repo($1);
+            %repo = $self->_git_to_repo($url);
         }
         elsif ($execute->('git svn info') =~ /URL: (.*)$/m) {
             %repo = (qw(type svn  url), $1);

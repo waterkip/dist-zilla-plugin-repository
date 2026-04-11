@@ -26,33 +26,20 @@ my %result;
   }
 }
 
-$result{'git remote show -n origin'} = <<'END GIT';
-* remote origin
-  Fetch URL: git@github.com:fayland/dist-zilla-plugin-repository.git
-  Push  URL: git@github.com:fayland/dist-zilla-plugin-repository.git
-  HEAD branch: (not queried)
-  Remote branch: (status not queried)
-    master
-  Local branch configured for 'git pull':
-    master merges with remote master
-  Local ref configured for 'git push' (status not queried):
-    (matching) pushes to (matching)
-END GIT
+my %remotes = (
+  origin    => 'git@github.com:fayland/dist-zilla-plugin-repository.git',
+  dzil      => 'git://github.com/rjbs/dist-zilla.git',
+  bitbucket => 'git@bitbucket.org:foo/bar',
+  codeberg  => 'ssh://git@codeberg.org/foo/bar.git',
+  gitlab    => 'git@gitlab.com:foo/bar',
+  github    => 'git@github.com:foo/bar',
+  work      => 'work',
+  nourl     => 'origin',
+);
 
-$result{'git remote show -n dzil'} = <<'END GIT DZIL';
-* remote dzil
-  Fetch URL: git://github.com/rjbs/dist-zilla.git
-  Push  URL: git://github.com/rjbs/dist-zilla.git
-  HEAD branch: (not queried)
-  Remote branches: (status not queried)
-    config-mvp-reader
-    cpan-meta-prereqs
-    master
-    new-classic
-    prereq-overhaul
-  Local ref configured for 'git push' (status not queried):
-    (matching) pushes to (matching)
-END GIT DZIL
+foreach (keys %remotes) {
+  $result{"git config get remote.$_.url"} = $remotes{$_};
+}
 
 $result{'svn info'} = <<'END SVN';
 Path: .
@@ -80,32 +67,6 @@ END DARCS
 $result{'hg paths'} = <<'END HG';
 default = https://foobar.googlecode.com/hg/
 END HG
-
-$result{'git remote show -n gitlab'} = <<'END GITLAB';
-* remote origin
-  Fetch URL: git@gitlab.com:foo/bar
-  Push  URL: git@gitlab.com:foo/bar
-  HEAD branch: (not queried)
-  Remote branch: (status not queried)
-    master
-  Local branch configured for 'git pull':
-    master merges with remote master
-  Local ref configured for 'git push' (status not queried):
-    (matching) pushes to (matching)
-END GITLAB
-
-$result{'git remote show -n bitbucket'} = <<'END BITBUCKET';
-* remote origin
-  Fetch URL: git@bitbucket.org:foo/bar
-  Push  URL: git@bitbucket.org:foo/bar
-  HEAD branch: (not queried)
-  Remote branch: (status not queried)
-    master
-  Local branch configured for 'git pull':
-    master merges with remote master
-  Local ref configured for 'git push' (status not queried):
-    (matching) pushes to (matching)
-END BITBUCKET
 
 #---------------------------------------------------------------------
 sub make_ini
