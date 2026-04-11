@@ -3,6 +3,7 @@ package Dist::Zilla::Plugin::Repository;
 # ABSTRACT: Automatically sets repository URL from svn/svk/Git checkout for Dist::Zilla
 
 use Moose;
+use URI;
 with 'Dist::Zilla::Role::MetaProvider';
 
 =head1 SYNOPSIS
@@ -147,26 +148,22 @@ sub _git_to_repo {
 
     $uri =~ s![\w\-]+\@([^:]+):!git://$1/!;
 
+    return if $uri !~ m#^\w+://#;
+
     my %repo = (type => 'git');
 
-    $repo{url} = $uri unless $uri eq 'origin';    # RT 55136
+    $uri = URI->new($uri);
+    $repo{web} = "https://" . $uri->host . $uri->path =~ s/\.git$//r;
+    $repo{url} = "$uri";
 
-    if ($uri
-        =~ /^(?:git|https?):\/\/((?:git(?:lab|hub)\.com|bitbucket.org).*?)(?:\.git)?$/
-        )
-    {
-        $repo{web} = "https://$1";
-
-        if ($self->github_http) {
-
-            # I prefer https://github.com/user/repository
-            # to git://github.com/user/repository.git
-            delete $repo{url};
-            $self->log("github_http is deprecated.  "
-                    . "Consider using META.json instead,\n"
-                    . "which can store URLs for both git clone "
-                    . "and the web front-end.");
-        }
+    if ($self->github_http) {
+        # I prefer https://github.com/user/repository
+        # to git://github.com/user/repository.git
+        delete $repo{url};
+        $self->log("github_http is deprecated.  "
+                . "Consider using META.json instead,\n"
+                . "which can store URLs for both git clone "
+                . "and the web front-end.");
     }
     return %repo;
 }

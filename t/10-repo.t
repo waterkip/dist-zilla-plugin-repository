@@ -351,14 +351,6 @@ sub remote_not_found
 }
 
 #---------------------------------------------------------------------
-$result{'git remote show -n nourl'} = <<'END GIT NOURL';
-* remote nourl
-  Fetch URL: origin
-  Push  URL: origin
-  HEAD branch: (not queried)
-  Remote branches: (status not queried)
-END GIT NOURL
-
 {
   my $tzil = build_tzil(['git_remote = nourl'], '.git');
 
@@ -376,32 +368,23 @@ END GIT NOURL
 
   is_deeply(
       $tzil->distmeta->{resources}{repository},
-      { type => 'git',  url => $url },
+      { type => 'git',  url => $url, web => 'https://example.com/example' },
       "Auto git remote nourl with repository"
   );
   ok(!github_deprecated($tzil),
      "Auto git remote nourl with repository log message");
 }
 
-#---------------------------------------------------------------------
-$result{'git remote show -n github'} = <<'END GITHUB REMOTE NOT FOUND';
-* remote github
-  Fetch URL: github
-  Push  URL: github
-  HEAD branch: (not queried)
-  Remote branches: (status not queried)
-END GITHUB REMOTE NOT FOUND
-
 {
-  my $tzil = build_tzil(['git_remote = github'], '.git');
+  my $tzil = build_tzil(['git_remote = work'], '.git');
 
   is(
       $tzil->distmeta->{resources}{repository},
       undef,
-      "Auto git remote github not found"
+      "Auto git remote work not found"
   );
-  ok(remote_not_found($tzil),
-      "Auto git remote github not found");
+  ok(!remote_not_found($tzil),
+      "Auto git remote work not found");
 }
 
 #---------------------------------------------------------------------
@@ -418,4 +401,16 @@ END GITHUB REMOTE NOT FOUND
   ok(!github_deprecated($tzil), "Auto gitlab log message");
 }
 
+{
+  my $tzil = build_tzil(['repository = git@codeberg.org:foo/bar.git'], '.git');
+
+  is_deeply(
+      $tzil->distmeta->{resources}{repository},
+      { type => 'git',
+        url => 'git://codeberg.org/foo/bar.git',
+        web => 'https://codeberg.org/foo/bar' },
+      "Auto codeberg"
+  );
+  ok(!github_deprecated($tzil), "Auto codeberg log message");
+}
 done_testing;
