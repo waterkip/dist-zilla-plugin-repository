@@ -38,7 +38,7 @@ my %remotes = (
 );
 
 foreach (keys %remotes) {
-  $result{"git config get remote.$_.url"} = $remotes{$_};
+  $result{"git config --get remote.$_.url"} = $remotes{$_};
 }
 
 $result{'svn info'} = <<'END SVN';

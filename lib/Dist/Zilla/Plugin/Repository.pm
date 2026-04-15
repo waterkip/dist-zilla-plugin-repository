@@ -4,6 +4,7 @@ package Dist::Zilla::Plugin::Repository;
 
 use Moose;
 use URI;
+use URI::git;
 with 'Dist::Zilla::Role::MetaProvider';
 
 =head1 SYNOPSIS
@@ -178,7 +179,7 @@ sub _find_repo {
         if ($self->has_repository) {
             %repo = $self->_git_to_repo($self->repository);
         }
-        elsif (my $url = $execute->('git config get remote.' .
+        elsif (my $url = $execute->('git config --get remote.' .
             $self->git_remote . '.url'))
         {
             %repo = $self->_git_to_repo($url);
