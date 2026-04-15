@@ -116,11 +116,6 @@ sub github_deprecated
 {
   scalar grep { /github_http is deprecated/ } @{ shift->log_messages };
 } # end github_deprecated
-#---------------------------------------------------------------------
-sub remote_not_found
-{
-  scalar grep { /Skipping invalid git remote/ } @{ shift->log_messages };
-} # end remote_not_found
 
 #=====================================================================
 {
@@ -381,10 +376,8 @@ sub remote_not_found
   is(
       $tzil->distmeta->{resources}{repository},
       undef,
-      "Auto git remote work not found"
+      "Auto git remote work invalid URL"
   );
-  ok(!remote_not_found($tzil),
-      "Auto git remote work not found");
 }
 
 #---------------------------------------------------------------------

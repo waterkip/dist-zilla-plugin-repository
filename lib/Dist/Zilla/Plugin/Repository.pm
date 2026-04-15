@@ -154,7 +154,7 @@ sub _git_to_repo {
     my %repo = (type => 'git');
 
     $uri = URI->new($uri);
-    $repo{web} = "https://" . $uri->host . $uri->path =~ s/\.git$//r;
+    $repo{web} = "https://" . $uri->host . ($uri->path =~ s/\.git$//r);
     $repo{url} = "$uri";
 
     if ($self->github_http) {
@@ -186,12 +186,6 @@ sub _find_repo {
         }
         elsif ($execute->('git svn info') =~ /URL: (.*)$/m) {
             %repo = (qw(type svn  url), $1);
-        }
-
-        # invalid github remote might come back with just the remote name
-        if ( $repo{url} && $repo{url} =~ /\A\w+\z/ ) {
-          delete $repo{$_} for qw/url type web/;
-          $self->log("Skipping invalid git remote " . $self->git_remote);
         }
     } elsif (-e ".svn") {
         $repo{type} = 'svn';
